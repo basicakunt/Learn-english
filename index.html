@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnglishBot - Learn English</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #0088cc;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .bot-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .bot-info p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .message.bot .message-bubble {
+            background: #ffffff;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message.user .message-bubble {
+            background: #0088cc;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .lesson-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 10px 0;
+            border-left: 4px solid #0088cc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .lesson-title {
+            font-weight: 600;
+            color: #0088cc;
+            margin-bottom: 8px;
+        }
+
+        .word-example {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-style: italic;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .quiz-option {
+            background: #e3f2fd;
+            border: 2px solid transparent;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .quiz-option:hover {
+            background: #bbdefb;
+            border-color: #0088cc;
+        }
+
+        .quiz-option.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+        }
+
+        .quiz-option.wrong {
+            background: #ffcdd2;
+            border-color: #f44336;
+        }
+
+        .input-area {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            background: #0088cc;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #006699;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            background: #e3f2fd;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #0088cc;
+            color: white;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 2px;
+        }
+
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            background: #666;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4caf50;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="bot-avatar">📔</div>
+            <div class="bot-info">
+                <h3>EnglishBot</h3>
+                <p>Your English Learning Assistant</p>
+            </div>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+            <div class="message bot">
+                <div class="message-bubble">
+                    <div>👋 Hello! I'm EnglishBot, your personal English tutor!</div>
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="startLesson('vocabulary')">📚 Vocabulary</button>
+                        <button class="quick-btn" onclick="startLesson('grammar')">📝 Grammar</button>
+                        <button class="quick-btn" onclick="startLesson('quiz')">🎯 Quiz</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span>EnglishBot is typing</span>
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" class="message-input" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        let currentLesson = null;
+        let userProgress = 0;
+        let currentQuiz = null;
+
+        const lessons = {
+            vocabulary: [
+                {
+                    word: "Serendipity",
+                    definition: "A pleasant surprise or fortunate accident",
+                    example: "Finding this café was pure serendipity!",
+                    pronunciation: "/ˌserənˈdipədē/"
+                },
+                {
+                    word: "Eloquent",
+                    definition: "Fluent and persuasive in speaking or writing",
+                    example: "Her eloquent speech moved the entire audience.",
+                    pronunciation: "/ˈeləkwənt/"
+                },
+                {
+                    word: "Resilient",
+                    definition: "Able to recover quickly from difficulties",
+                    example: "She remained resilient despite the challenges.",
+                    pronunciation: "/rəˈzilyənt/"
+                }
+            ],
+            grammar: [
+                {
+                    topic: "Present Perfect Tense",
+                    rule: "Use 'have/has + past participle' for actions that started in the past and continue to the present",
+                    examples: [
+                        "I have lived here for 5 years.",
+                        "She has finished her homework.",
+                        "They have been friends since childhood."
+                    ]
+                },
+                {
+                    topic: "Conditional Sentences",
+                    rule: "If + present simple, will + base verb (First conditional)",
+                    examples: [
+                        "If it rains, I will stay home.",
+                        "If you study hard, you will pass the exam.",
+                        "If she calls, I will answer."
+                    ]
+                }
+            ],
+            quizzes: [
+                {
+                    question: "What does 'serendipity' mean?",
+                    options: [
+                        "A pleasant surprise",
+                        "A difficult situation",
+                        "A planned event",
+                        "A boring routine"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "Choose the correct sentence:",
+                    options: [
+                        "I have went to the store",
+                        "I have gone to the store",
+                        "I have go to the store",
+                        "I have going to the store"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Which word means 'able to recover quickly'?",
+                    options: [
+                        "Fragile",
+                        "Resilient",
+                        "Stubborn",
+                        "Careless"
+                    ],
+                    correct: 1
+                }
+            ]
+        };
+
+        function addMessage(content, isUser = false, isHtml = false) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            
+            if (isHtml) {
+                bubbleDiv.innerHTML = content;
+            } else {
+                bubbleDiv.textContent = content;
+            }
+            
+            messageDiv.appendChild(bubbleDiv);
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, true);
+                input.value = '';
+                
+                // Simulate bot response
+                showTyping();
+                setTimeout(() => {
+                    hideTyping();
+                    handleBotResponse(message.toLowerCase());
+                }, 1500);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function handleBotResponse(userMessage) {
+            if (userMessage.includes('hello') || userMessage.includes('hi')) {
+                addMessage("Hello! Ready to learn some English? Choose a lesson type above! 😊");
+            } else if (userMessage.includes('help')) {
+                addMessage("I can help you with:\n📚 Vocabulary lessons\n📝 Grammar rules\n🎯 Practice quizzes\n\nJust click the buttons or ask me directly!");
+            } else if (userMessage.includes('thank')) {
+                addMessage("You're welcome! Keep practicing and you'll improve quickly! 🌟");
+            } else {
+                const responses = [
+                    "That's interesting! Would you like to practice some vocabulary?",
+                    "Great question! Let me help you with that. Try starting a lesson!",
+                    "I'm here to help you learn English! What would you like to practice?",
+                    "Excellent! Your English is improving. Keep it up! 💪"
+                ];
+                addMessage(responses[Math.floor(Math.random() * responses.length)]);
+            }
+        }
+
+        function startLesson(type) {
+            currentLesson = type;
+            showTyping();
+            
+            setTimeout(() => {
+                hideTyping();
+                
+                if (type === 'vocabulary') {
+                    showVocabularyLesson();
+                } else if (type === 'grammar') {
+                    showGrammarLesson();
+                } else if (type === 'quiz') {
+                    startQuiz();
+                }
+            }, 1000);
+        }
+
+        function showVocabularyLesson() {
+            const lesson = lessons.vocabulary[Math.floor(Math.random() * lessons.vocabulary.length)];
+            
+            const lessonHtml = `
+                <div class="lesson-card">
+                    <div class="lesson-title">📚 Vocabulary Lesson</div>
+                    <div><strong>${lesson.word}</strong> ${lesson.pronunciation}</div>
+                    <div style="margin: 8px 0; color: #666;">${lesson.definition}</div>
+                    <div class="word-example">"${lesson.example}"</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${userProgress}%"></div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="startLesson('vocabulary')">📚 Next Word</button>
+                    <button class="quick-btn" onclick="startLesson('quiz')">🎯 Test Me</button>
+                </div>
+            `;
+            
+            addMessage(lessonHtml, false, true);
+            userProgress = Math.min(userProgress + 10, 100);
+        }
+
+        function showGrammarLesson() {
+            const lesson = lessons.grammar[Math.floor(Math.random() * lessons.grammar.length)];
+            
+            const examplesHtml = lesson.examples.map(ex => 
+                `<div class="word-example">"${ex}"</div>`
+            ).join('');
+            
+            const lessonHtml = `
+                <div class="lesson-card">
+                    <div class="lesson-title">📝 Grammar Lesson</div>
+                    <div><strong>${lesson.topic}</strong></div>
+                    <div style="margin: 8px 0; color: #666;">${lesson.rule}</div>
+                    <div style="margin-top: 12px;"><strong>Examples:</strong></div>
+                    ${examplesHtml}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${userProgress}%"></div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="startLesson('grammar')">📝 Next Rule</button>
+                    <button class="quick-btn" onclick="startLesson('quiz')">🎯 Practice</button>
+                </div>
+            `;
+            
+            addMessage(lessonHtml, false, true);
+            userProgress = Math.min(userProgress + 15, 100);
+        }
+
+        function startQuiz() {
+            currentQuiz = lessons.quizzes[Math.floor(Math.random() * lessons.quizzes.length)];
+            
+            const optionsHtml = currentQuiz.options.map((option, index) => 
+                `<div class="quiz-option" onclick="selectAnswer(${index})">${option}</div>`
+            ).join('');
+            
+            const quizHtml = `
+                <div class="lesson-card">
+                    <div class="lesson-title">🎯 Quiz Time!</div>
+                    <div style="margin: 12px 0; font-weight: 500;">${currentQuiz.question}</div>
+                    <div class="quiz-options" id="quizOptions">
+                        ${optionsHtml}
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${userProgress}%"></div>
+                    </div>
+                </div>
+            `;
+            
+            addMessage(quizHtml, false, true);
+        }
+
+        function selectAnswer(selectedIndex) {
+            const options = document.querySelectorAll('#quizOptions .quiz-option');
+            const isCorrect = selectedIndex === currentQuiz.correct;
+            
+            options.forEach((option, index) => {
+                option.style.pointerEvents = 'none';
+                if (index === currentQuiz.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && !isCorrect) {
+                    option.classList.add('wrong');
+                }
+            });
+            
+            setTimeout(() => {
+                if (isCorrect) {
+                    addMessage("🎉 Correct! Well done! Your English is improving!");
+                    userProgress = Math.min(userProgress + 20, 100);
+                } else {
+                    addMessage("❌ Not quite right, but keep trying! Practice makes perfect!");
+                }
+                
+                setTimeout(() => {
+                    const nextActions = `
+                        <div class="quick-actions">
+                            <button class="quick-btn" onclick="startLesson('quiz')">🎯 Next Quiz</button>
+                            <button class="quick-btn" onclick="startLesson('vocabulary')">📚 Learn Words</button>
+                            <button class="quick-btn" onclick="startLesson('grammar')">📝 Study Grammar</button>
+                        </div>
+                    `;
+                    addMessage(nextActions, false, true);
+                }, 1000);
+            }, 1500);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('messageInput').focus();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d62aacb3da8a6b',t:'MTc1NDg5ODg4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
